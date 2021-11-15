@@ -2,8 +2,8 @@
 pragma solidity 0.8.10;
 
 contract Token {
-    string  public name = "Joy Token";
-    string  public symbol = "JOY";
+    string  public name = "Kitty Token";
+    string  public symbol = "KIT";
     uint256 public totalSupply = 1000000000000000000000000; // 1 million tokens
     uint8   public decimals = 18;
 

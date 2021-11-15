@@ -96,42 +96,56 @@ export default function Home() {
     }
   };
 
+  const handleBuyTokens = async () => {
+    const amountInWei = web3.utils.toWei(amount);
+    await ethswap.methods
+      .buyTokens()
+      .send({ value: amountInWei, from: account.address });
+    setAlert({
+      color: 'green',
+      message: 'Purchase successful',
+      dismissable: true,
+    });
+  };
+  const handleSellTokens = async () => {
+    const amountInWei = web3.utils.toWei(amount);
+    // Approve contract to sell for buyer
+    await token.methods
+      .approve(ethswap._address, amountInWei)
+      .send({ from: account.address });
+    // Sell the tokens
+    await ethswap.methods
+      .sellTokens(amountInWei)
+      .send({ from: account.address });
+    setAlert({
+      color: 'green',
+      message: 'Sale successful',
+      dismissable: true,
+    });
+  };
+
   const handleClick = async () => {
     setLoading(true);
-    const amountInWei = web3.utils.toWei(amount);
-    if (isSelling) {
-      // Approve contract to sell for buyer
-      await token.methods
-        .approve(ethswap._address, amountInWei)
-        .send({ from: account.address });
-      // Sell the tokens
-      await ethswap.methods
-        .sellTokens(amountInWei)
-        .send({ from: account.address });
+    try {
+      isSelling ? await handleSellTokens() : await handleBuyTokens();
+      setAmount(0);
+      loadBlockchainData();
+    } catch (error) {
       setAlert({
-        color: 'green',
-        message: 'Sale successful',
+        color: 'red',
+        message: error.message,
         dismissable: true,
       });
-    } else {
-      await ethswap.methods
-        .buyTokens()
-        .send({ value: amountInWei, from: account.address });
-      setAlert({
-        color: 'green',
-        message: 'Purchase successful',
-        dismissable: true,
-      });
+    } finally {
+      setLoading(false);
     }
-    setAmount(0);
-    setLoading(false);
-    loadBlockchainData();
   };
+
   return (
     <div className='px-12 py-2'>
       {/* Alert */}
       <div
-        className={`absolute bg-green-100 text-${
+        className={`absolute bg-${alert.color}-100 text-${
           alert.color
         }-900 py-2 px-4 rounded z-20 top-32 ${
           alert.message ? 'translate-y-0' : '-translate-y-52'
@@ -158,12 +172,13 @@ export default function Home() {
           <p className='font-medium opacity-50'>{account.address}</p>
         </div>
       </header>
+      {/* Main */}
       <main className='pb-6'>
         <div className='grid grid-cols-2 gap-4'>
           {/* Hero Section */}
           <div className='mt-20'>
             <h1 className='text-4xl text-gray-800 font-black mx-2'>
-              {isSelling ? 'Sell your' : 'Buy yourself'}
+              {isSelling ? 'Sell your' : 'Exchange your Ether for'}
             </h1>
             <h1 className='text-7xl text-pink-500 font-black mt-2 mb-8'>
               Cute KITty Coins
@@ -195,7 +210,7 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <div className='border p-4 rounded-lg hover:shadow-2xl focus-within:shadow-2xl'>
+            <div className='border p-5 rounded-lg hover:shadow-2xl focus-within:shadow-2xl'>
               <div className='mb-6'>
                 <p className='flex justify-between text-xs'>
                   <label htmlFor='' className='font-semibold'>
@@ -252,7 +267,7 @@ export default function Home() {
                 disabled={loading}
                 onClick={handleClick}
               >
-                {isSelling ? 'Sell' : 'Buy Now'}
+                {isSelling ? 'Sell' : 'Buy'} KITties
               </button>
             </div>
           </div>

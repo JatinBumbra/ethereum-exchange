@@ -21,14 +21,14 @@ contract('EthSwap', ([deployer, buyer]) => {
     });
   });
 
-  describe('Joy Token deployment', async () => {
+  describe('Kitty Token deployment', async () => {
     it('has a name', async () => {
-      assert.equal(await token.name(), 'Joy Token');
+      assert.equal(await token.name(), 'Kitty Token');
     });
   });
 
   describe('EthSwap contract has tokens', async () => {
-    it('has a balance of 1M JOY tokens', async () => {
+    it('has a balance of 1M KIT tokens', async () => {
       const balance = await token.balanceOf(ethSwap.address);
       assert.equal(balance.toString(), tokens('1000000'));
     });
